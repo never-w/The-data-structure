@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      //   class Stack {
+      //     constructor() {
+      //       this.items = []
+      //     }
+      //     push(element) {
+      //       this.items.push(element)
+      //     }
+      //     pop(element) {
+      //       return this.items.pop(element)
+      //     }
+      //     peek() {
+      //       return this.items[this.items.length - 1]
+      //     }
+      //     isEmpty() {
+      //       return this.items.length === 0
+      //     }
+      //     size() {
+      //       return this.items.length
+      //     }
+      //     clear() {
+      //       this.items = []
+      //     }
+      //   }
+
+      //   const stack = new Stack()
+      //   stack.push("wyq")
+      //   stack.pop()
+      //   console.log(stack)
+      //   console.log(stack.size())
+      //   console.log(stack.isEmpty())
+
+      // -------------------------------------------------------------------------------------------------------------------------
+      // -------------------------------------------------------------------------------------------------------------------------
+      // -------------------------------------------------------------------------------------------------------------------------
+      class Stack {
+        constructor() {
+          this.count = 0
+          this.items = {}
+        }
+        push(element) {
+          this.items[this.count] = element
+          this.count++
+        }
+        pop(element) {
+          if (this.isEmpty()) {
+            return undefined
+          }
+          this.count--
+          const result = this.items[this.count]
+          delete this.items[this.count]
+          return result
+        }
+        peek() {
+          if (this.isEmpty()) {
+            return undefined
+          }
+          return this.items[this.count - 1]
+        }
+        isEmpty() {
+          return this.count === 0
+        }
+        size() {
+          return this.count
+        }
+        clear() {
+          this.items = {}
+          this.count = 0
+        }
+        toString() {
+          if (this.isEmpty()) {
+            return ""
+          }
+          let objString = ""
+          for (let i = 0; i < this.count; i++) {
+            objString += `${this.items[i]}`
+          }
+          return objString
+        }
+      }
+
+      const stack = new Stack()
+      stack.push("wyq")
+      stack.push("gyf")
+      console.log(Object.getOwnPropertyNames(stack)) // {1}
+      console.log(Object.keys(stack)) // {2}
+      console.log(stack.items) // {3}
+      console.log(stack.count) // {4}
+      console.log(stack.toString()) // {5}
+
+      // 10进制转为2进制方法
+      function decimalToBinary(num) {
+        const remStack = new Stack()
+        let number = Math.abs(num)
+        let rem
+        let binaryString = ""
+        while (number > 0) {
+          rem = Math.floor(number % 2)
+          remStack.push(rem)
+          number = Math.floor(number / 2)
+        }
+
+        while (!remStack.isEmpty()) {
+          binaryString += remStack.pop().toString()
+        }
+        return num < 0 ? "-" + binaryString : num == 0 ? "0" : binaryString
+      }
+
+      console.log(decimalToBinary(233))
+      console.log(decimalToBinary(10))
+      console.log(decimalToBinary(1000))
+
+      // 十进制转为任意进制方法
+      function baseConverter(decNumber, base) {
+        const remStack = new Stack()
+        const digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        let number = decNumber
+        let rem
+        let baseString = ""
+
+        if (!(base >= 2 && base <= 36)) {
+          return ""
+        }
+        while (number > 0) {
+          rem = Math.floor(number % base)
+          remStack.push(rem)
+          number = Math.floor(number / base)
+        }
+        while (!remStack.isEmpty()) {
+          baseString += digits[remStack.pop()]
+        }
+
+        return baseString
+      }
+
+      console.log(baseConverter(100345, 16), "转换")
+    </script>
+  </body>
+</html>
