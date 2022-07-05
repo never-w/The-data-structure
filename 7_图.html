@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      class Graph {
+        constructor(isDirected = false) {
+          this.isDirected = isDirected
+          this.vertices = []
+          this.adjList = new Map()
+        }
+        addVertex(v) {
+          if (!this.vertices.includes(v)) {
+            this.vertices.push(v)
+            this.adjList.set(v, [])
+          }
+        }
+        addEdge(v, w) {
+          if (!this.adjList.get(v)) {
+            this.addVertex(v)
+          }
+          if (!this.adjList.get(w)) {
+            this.addVertex(w)
+          }
+          this.adjList.get(v).push(w)
+          if (!this.isDirected) {
+            this.adjList.get(w).push(v)
+          }
+        }
+        getVertices() {
+          return this.vertices
+        }
+        getAdjList() {
+          return this.adjList
+        }
+        toString() {
+          let s = ""
+          for (let i = 0; i < this.vertices.length; i++) {
+            s += `${this.vertices[i]} -> `
+            const neighbors = this.adjList.get(this.vertices[i])
+            for (let j = 0; j < neighbors.length; j++) {
+              s += `${neighbors[j]} `
+            }
+            s += "\n"
+          }
+          return s
+        }
+      }
+
+      const graph = new Graph()
+      const myVertices = ["A", "B", "C", "D", "E", "F", "G", "H", "I"]
+      for (let i = 0; i < myVertices.length; i++) {
+        graph.addVertex(myVertices[i])
+      }
+      graph.addEdge("A", "B")
+      graph.addEdge("A", "C")
+      graph.addEdge("A", "D")
+      graph.addEdge("C", "D")
+      graph.addEdge("C", "G")
+      graph.addEdge("D", "G")
+      graph.addEdge("D", "H")
+      graph.addEdge("B", "E")
+      graph.addEdge("B", "F")
+      graph.addEdge("E", "I")
+
+      console.log(graph.toString())
+
+      const Colors = {
+        WHITE: 0,
+        GREY: 1,
+        BLACK: 2,
+      }
+
+      const initializeColor = (vertices) => {
+        const color = {}
+        for (let i = 0; i < vertices.length; i++) {
+          color[vertices[i]] = Colors.WHITE
+        }
+        return color
+      }
+
+      function bfs(graph, startVertex, cb) {
+        const vertices = graph.getVertices()
+        const adjList = graph.getAdjList()
+        const color = initializeColor(vertices)
+        const queue = []
+        const distances = {}
+        const predecessors = {}
+        queue.push(startVertex)
+        for (let i = 0; i < vertices.length; i++) {
+          distances[vertices[i]] = 0
+          predecessors[vertices[i]] = null
+        }
+        while (queue.length > 0) {
+          const u = queue.shift()
+          const neighbors = adjList.get(u)
+          for (let i = 0; i < neighbors.length; i++) {
+            const w = neighbors[i]
+            if (color[w] === Colors.WHITE) {
+              color[w] = Colors.GREY
+              distances[w] = distances[u] + 1
+              predecessors[w] = u
+              queue.push(w)
+            }
+          }
+          color[u] = Colors.BLACK
+          if (cb) cb(u)
+        }
+        return {
+          distances,
+          predecessors,
+        }
+      }
+
+      const printVertex = (value) => console.log("Visited vertex: " + value)
+      bfs(graph, myVertices[0], printVertex)
+
+      const shortestPathA = bfs(graph, myVertices[0])
+      console.log(shortestPathA)
+
+      //   function dfs(graph, cb) {
+      //     const vertices = graph.getVertices()
+      //     const adjList = graph.getAdjList()
+      //     const color = initializeColor(vertices)
+      //     for (let i = 0; i < vertices.length; i++) {
+      //       if (color[vertices[i]] === Colors.WHITE) {
+      //         dfsList(vertices[i], color, adjList, cb)
+      //       }
+      //     }
+      //   }
+      //   function dfsList(u, color, adjList, cb) {
+      //     color[u] = Colors.GREY
+      //     if (cb) cb(u)
+      //     const neighbors = adjList.get(u)
+      //     for (let i = 0; i < neighbors.length; i++) {
+      //       const w = neighbors[i]
+      //       if (color[w] === Colors.WHITE) {
+      //         dfsList(w, color, adjList, cb)
+      //       }
+      //     }
+      //     color[u] = Colors.BLACK
+      //   }
+
+      function dfs(graph, cb) {
+        const vertices = graph.getVertices()
+        const adjList = graph.getAdjList()
+        const color = initializeColor(vertices)
+        const d = {}
+        const f = {}
+        const p = {}
+        const time = { count: 0 } // {1}
+        for (let i = 0; i < vertices.length; i++) {
+          // {2}
+          f[vertices[i]] = 0
+          d[vertices[i]] = 0
+          p[vertices[i]] = null
+        }
+
+        for (let i = 0; i < vertices.length; i++) {
+          if (color[vertices[i]] === Colors.WHITE) {
+            dfsList(vertices[i], color, d, f, p, time, adjList, cb)
+          }
+        }
+        return {
+          // {3}
+          discovery: d,
+          finished: f,
+          predecessors: p,
+        }
+      }
+
+      function dfsList(u, color, d, f, p, time, adjList, cb) {
+        color[u] = Colors.GREY
+        d[u] = ++time.count // {4}
+        if (cb) cb(u)
+        const neighbors = adjList.get(u)
+        for (let i = 0; i < neighbors.length; i++) {
+          const w = neighbors[i]
+          if (color[w] === Colors.WHITE) {
+            p[w] = u // {5}
+            dfsList(w, color, d, f, p, time, adjList, cb)
+          }
+        }
+        color[u] = Colors.BLACK
+        f[u] = ++time.count // {6}
+      }
+
+      console.log(dfs(graph))
+    </script>
+  </body>
+</html>
